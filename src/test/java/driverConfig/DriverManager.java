@@ -10,13 +10,22 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 
 import java.io.File;
-
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class DriverManager {
+
+private static final String USERNAME = "israelgarate_cqE1fL";
+
+private static final String AUTOMATE_KEY = "CQMS9txkfeQsZkyH5pr1";
+
 private WebDriver driver;
 private DesiredCapabilities capabilities = new DesiredCapabilities();
 private File root = new File("driverNavegador");
@@ -32,29 +41,40 @@ private String extensionDriver = "";
     	    switch (nav) {
     	       case Chrome:
     	        System.out.println("Se selecciona Chrome");
-				ChromeOptions chromeOptions = new ChromeOptions();
+				   ChromeOptions chromeOptions = new ChromeOptions();
+				   chromeOptions.addArguments("--remote-allow-origins=*");
+				   chromeOptions.setCapability("browserVersion", "113.0");
+				   chromeOptions.setCapability("platformName", "Windows");
+				   Map<String, Object> browserStackOptions = new HashMap<>();
+				   browserStackOptions.put("osVersion", "10");
+				   browserStackOptions.put("resolution", "1920x1080") ;
+				   browserStackOptions.put( "buildName", "browserstack local automate");
+				   browserStackOptions.put("sessionName", "BStack local prueba framework");
+				   browserStackOptions.put( "local", true);
+				   // Otras opciones de BrowserStack pueden ir aquí.
+
+				   chromeOptions.setCapability("bstack:options", browserStackOptions);
+
 				if (os.contains("linux")){
 					System.out.println("entre a linux");
 					System.out.println(System.getProperty("user.name"));
-
 					chromeOptions.addArguments("--disable-dev-shm-usage");
 					chromeOptions.addArguments("--no-sandbox");
 					chromeOptions.addArguments("--disable-gpu");
 					chromeOptions.addArguments("--headless");
 					chromeOptions.addArguments("--ignore-ssl-errors=yes");
-					//chromeOptions.addArguments("--disable-dev-shm-usage");
-					//chromeOptions.addArguments("--ignore-certificate-errors");
-					//chromeOptions.addArguments("--disable-extensions");
-					//chromeOptions.addArguments("--disable-gpu");
-					//chromeOptions.addArguments("--no-sandbox");
 					chromeOptions.addArguments("--window-size=1920x1080");
-					//chromeOptions.addArguments("--no-setuid-sandbox");
+
 
 				}
-				WebDriverManager.chromedriver().setup();
-				chromeOptions.addArguments("--remote-allow-origins=*");
-    	        this.driver = (WebDriver)new ChromeDriver(chromeOptions);
-    	        this.driver.manage().deleteAllCookies();
+				   try {
+					   this.driver = new RemoteWebDriver(
+							   new URL("https://" + USERNAME + ":" + AUTOMATE_KEY + "@hub-cloud.browserstack.com/wd/hub"),
+							   chromeOptions
+					   );
+				   } catch (MalformedURLException e) {
+					   e.printStackTrace();
+				   }
     	        break;
     	      case Explorer:
     	        System.out.println("Se selecciona Explorer");
